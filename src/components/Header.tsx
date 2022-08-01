@@ -1,0 +1,26 @@
+import styled from "styled-components";
+import logo from "../images/logo.png";
+import { theme } from "../styles/theme";
+
+export default function Header() {
+  return (
+    <Container>
+      <Img src={logo} alt="EngAll" />
+    </Container>
+  );
+}
+
+const Container = styled.div`
+  width: 100%;
+  height: 3rem;
+  padding: 0.2rem 2rem;
+  background-color: ${theme.headerBackgroundColor};
+  display: flex;
+  align-items: center;
+`;
+
+const Img = styled.img`
+  height: 80%;
+  position: relative;
+  top: 0.2rem;
+`;

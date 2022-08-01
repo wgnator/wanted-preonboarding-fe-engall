@@ -1,0 +1,276 @@
+{
+  "schedules": [
+    {
+      "id": 1,
+      "userID": "john0123",
+      "startTime": 600,
+      "endTime": 640
+    },
+    {
+      "id": 2,
+      "userID": "john0123",
+      "startTime": 3620,
+      "endTime": 3660
+    },
+    {
+      "id": 3,
+      "userID": "john0123",
+      "startTime": 4920,
+      "endTime": 4960
+    },
+    {
+      "id": 4,
+      "userID": "john0123",
+      "startTime": 4980,
+      "endTime": 5020
+    },
+    {
+      "id": 5,
+      "userID": "john0123",
+      "startTime": 6360,
+      "endTime": 6400
+    },
+    {
+      "startTime": 2040,
+      "endTime": 2080,
+      "userID": "john0123",
+      "id": 7
+    },
+    {
+      "startTime": 2100,
+      "endTime": 2140,
+      "userID": "john0123",
+      "id": 8
+    },
+    {
+      "startTime": 1440,
+      "endTime": 1480,
+      "userID": "john0123",
+      "id": 9
+    },
+    {
+      "startTime": 7200,
+      "endTime": 7240,
+      "userID": "john0123",
+      "id": 14
+    },
+    {
+      "startTime": 6550,
+      "endTime": 6590,
+      "userID": "john0123",
+      "id": 15
+    },
+    {
+      "startTime": -1,
+      "endTime": 39,
+      "userID": "john0123",
+      "id": 16
+    },
+    {
+      "startTime": 10110,
+      "endTime": 10150,
+      "userID": "john0123",
+      "id": 17
+    },
+    {
+      "startTime": 3060,
+      "endTime": 3100,
+      "userID": "john0123",
+      "id": 19
+    },
+    {
+      "startTime": 5940,
+      "endTime": 5980,
+      "userID": "john0123",
+      "id": 20
+    },
+    {
+      "startTime": 2580,
+      "endTime": 2620,
+      "userID": "john0123",
+      "id": 21
+    },
+    {
+      "startTime": 6900,
+      "endTime": 6940,
+      "userID": "john0123",
+      "id": 22
+    },
+    {
+      "startTime": 850,
+      "endTime": 890,
+      "userID": "john0123",
+      "id": 23
+    },
+    {
+      "startTime": 3730,
+      "endTime": 3770,
+      "userID": "john0123",
+      "id": 24
+    },
+    {
+      "startTime": 5170,
+      "endTime": 5210,
+      "userID": "john0123",
+      "id": 25
+    },
+    {
+      "startTime": 8050,
+      "endTime": 8090,
+      "userID": "john0123",
+      "id": 26
+    },
+    {
+      "startTime": 6610,
+      "endTime": 6650,
+      "userID": "john0123",
+      "id": 27
+    },
+    {
+      "startTime": 2290,
+      "endTime": 2330,
+      "userID": "john0123",
+      "id": 28
+    },
+    {
+      "startTime": 9490,
+      "endTime": 9530,
+      "userID": "john0123",
+      "id": 29
+    },
+    {
+      "startTime": 780,
+      "endTime": 820,
+      "userID": "john0123",
+      "id": 30
+    },
+    {
+      "startTime": 5100,
+      "endTime": 5140,
+      "userID": "john0123",
+      "id": 31
+    },
+    {
+      "startTime": 2220,
+      "endTime": 2260,
+      "userID": "john0123",
+      "id": 32
+    },
+    {
+      "startTime": 9420,
+      "endTime": 9460,
+      "userID": "john0123",
+      "id": 33
+    },
+    {
+      "startTime": 7980,
+      "endTime": 8020,
+      "userID": "john0123",
+      "id": 34
+    },
+    {
+      "startTime": 1140,
+      "endTime": 1180,
+      "userID": "john0123",
+      "id": 35
+    },
+    {
+      "startTime": 4020,
+      "endTime": 4060,
+      "userID": "john0123",
+      "id": 36
+    },
+    {
+      "startTime": 5460,
+      "endTime": 5500,
+      "userID": "john0123",
+      "id": 37
+    },
+    {
+      "startTime": 8340,
+      "endTime": 8380,
+      "userID": "john0123",
+      "id": 38
+    },
+    {
+      "startTime": 9780,
+      "endTime": 9820,
+      "userID": "john0123",
+      "id": 39
+    },
+    {
+      "startTime": 1380,
+      "endTime": 1420,
+      "userID": "john0123",
+      "id": 40
+    },
+    {
+      "startTime": 8580,
+      "endTime": 8620,
+      "userID": "john0123",
+      "id": 41
+    },
+    {
+      "startTime": 10020,
+      "endTime": 10060,
+      "userID": "john0123",
+      "id": 42
+    },
+    {
+      "startTime": 2820,
+      "endTime": 2860,
+      "userID": "john0123",
+      "id": 43
+    },
+    {
+      "startTime": 4260,
+      "endTime": 4300,
+      "userID": "john0123",
+      "id": 44
+    },
+    {
+      "startTime": 5700,
+      "endTime": 5740,
+      "userID": "john0123",
+      "id": 45
+    },
+    {
+      "startTime": 7140,
+      "endTime": 7180,
+      "userID": "john0123",
+      "id": 46
+    },
+    {
+      "startTime": 1865,
+      "endTime": 1905,
+      "userID": "john0123",
+      "id": 47
+    },
+    {
+      "startTime": 7625,
+      "endTime": 7665,
+      "userID": "john0123",
+      "id": 48
+    },
+    {
+      "startTime": 4745,
+      "endTime": 4785,
+      "userID": "john0123",
+      "id": 49
+    }
+  ],
+  "users": [
+    {
+      "id": "john0123",
+      "pw": "0123"
+    },
+    {
+      "id": "sam1234",
+      "pw": "1234"
+    },
+    {
+      "id": "dave2345",
+      "pw": "2345"
+    }
+  ]
+}
