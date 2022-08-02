@@ -6,14 +6,14 @@ import { useScheduleModel } from "../models/useScheduleModel";
 import { theme } from "../styles/theme";
 import { convertToTimeInDayString, DAYS_SEQUENCE } from "../utils/timeCalculations";
 import xIcon from "../images/xIcon.png";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const DAYS = Object.keys(DAYS_SEQUENCE);
 
 export default function ViewSchedulePage() {
   const navigate = useNavigate();
-  if (!localStorage.userID) navigate("/");
-
+  // if (!localStorage.userID) navigate("/");
+  console.log("view schedule page entered");
   const { slotsArray, deleteSlot } = useScheduleModel();
   const [deleteRequestedID, setDeleteRequestedID] = useState<number | null>(null);
 
@@ -29,7 +29,7 @@ export default function ViewSchedulePage() {
             <DayLabel>{DAYS[dayIndex]}</DayLabel>
             {slotsInDay &&
               slotsInDay.map((slot) => (
-                <Slot>
+                <Slot key={slot.id}>
                   <TimeText>
                     {convertToTimeInDayString(slot.startTime)} - {convertToTimeInDayString(slot.endTime)}
                   </TimeText>

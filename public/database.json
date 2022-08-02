@@ -61,12 +61,6 @@
       "id": 15
     },
     {
-      "startTime": -1,
-      "endTime": 39,
-      "userID": "john0123",
-      "id": 16
-    },
-    {
       "startTime": 10110,
       "endTime": 10150,
       "userID": "john0123",
@@ -193,12 +187,6 @@
       "id": 38
     },
     {
-      "startTime": 9780,
-      "endTime": 9820,
-      "userID": "john0123",
-      "id": 39
-    },
-    {
       "startTime": 1380,
       "endTime": 1420,
       "userID": "john0123",
@@ -209,12 +197,6 @@
       "endTime": 8620,
       "userID": "john0123",
       "id": 41
-    },
-    {
-      "startTime": 10020,
-      "endTime": 10060,
-      "userID": "john0123",
-      "id": 42
     },
     {
       "startTime": 2820,
@@ -257,6 +239,24 @@
       "endTime": 4785,
       "userID": "john0123",
       "id": 49
+    },
+    {
+      "startTime": 9660,
+      "endTime": 9700,
+      "userID": "john0123",
+      "id": 54
+    },
+    {
+      "startTime": 8640,
+      "endTime": 8680,
+      "userID": "john0123",
+      "id": 55
+    },
+    {
+      "startTime": 10060,
+      "endTime": 20,
+      "userID": "john0123",
+      "id": 56
     }
   ],
   "users": [

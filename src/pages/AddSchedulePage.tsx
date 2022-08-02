@@ -9,7 +9,7 @@ import { theme } from "../styles/theme";
 import { convertToMinuteOfWeek, DAYS_SEQUENCE, DAYS_TEXT, getArrayOfIntegerBetween } from "../utils/timeCalculations";
 
 type SelectedValuesStateType = {
-  time: { hour: string; minute: string; ampm: string };
+  time: { hour: string; minute: string; AMPM: "AM" | "PM" };
   daysArray: boolean[];
 };
 
@@ -18,11 +18,16 @@ type IsSelectingStateType = {
   minute: boolean;
 };
 
+const initialSelectedValues: SelectedValuesStateType = {
+  time: { hour: "00", minute: "00", AMPM: "AM" },
+  daysArray: Object.keys(DAYS_SEQUENCE).map((_) => false),
+};
+
 export default function AddSchedulePage() {
-  const [selectedValues, setSelectedValues] = useState<SelectedValuesStateType>({ time: { hour: "00", minute: "00", ampm: "am" }, daysArray: Object.keys(DAYS_SEQUENCE).map((_) => false) });
+  const [selectedValues, setSelectedValues] = useState<SelectedValuesStateType>(initialSelectedValues);
   const [isSelecting, setIsSelecting] = useState<IsSelectingStateType>({ hour: false, minute: false });
-  const hoursContainerRef = useRef(null);
-  const minutesContainerRef = useRef(null);
+  const hoursContainerRef = useRef<HTMLUListElement>(null);
+  const minutesContainerRef = useRef<HTMLUListElement>(null);
   const { saveSlot } = useScheduleModel();
   const navigate = useNavigate();
 
@@ -35,20 +40,20 @@ export default function AddSchedulePage() {
   };
 
   const onClickSave = () => {
-    const { hour, minute, ampm } = selectedValues.time;
+    const { hour, minute, AMPM } = selectedValues.time;
     const selectedDays = selectedValues.daysArray.reduce((acc, isChecked, index) => (isChecked ? [...acc, index] : acc), [] as number[]);
 
     selectedDays.forEach((dayIndex) => {
-      const startTimeInMinute = convertToMinuteOfWeek(dayIndex, hour, minute, ampm);
+      const startTimeInMinute = convertToMinuteOfWeek(dayIndex, hour, minute, AMPM);
       saveSlot({ startTime: startTimeInMinute, endTime: startTimeInMinute + CLASS_DURATION })
         .then((_) => {
-          window.alert(`Schedule saved: ${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${ampm}`);
+          window.alert(`Schedule saved: ${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${AMPM}`);
           navigate("/");
         })
         .catch((error) => {
           window.alert(
             error.message.includes("schedule_overlap")
-              ? `Oops! Your entered schedule time "${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${ampm}" overlaps with saved schedule starting at "${error.message.split("%")[1]}" \n`
+              ? `Oops! Your entered schedule time "${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${AMPM}" overlaps with saved schedule starting at "${error.message.split("%")[1]}" \n`
               : error.message
           );
         });
@@ -121,10 +126,10 @@ export default function AddSchedulePage() {
             </Ul>
           </SelectionWindow>
           <AMPMWrapper>
-            <RadioInput name="ampm" id="am" value="AM" checked={selectedValues.time.ampm === "AM"} onChange={handleRadioChange} />
-            <SelectBox htmlFor="am">AM</SelectBox>
-            <RadioInput name="ampm" id="pm" value="PM" checked={selectedValues.time.ampm === "PM"} onChange={handleRadioChange} />
-            <SelectBox htmlFor="pm">PM</SelectBox>
+            <RadioInput name="AMPM" id="AM" value="AM" checked={selectedValues.time.AMPM === "AM"} onChange={handleRadioChange} />
+            <SelectBox htmlFor="AM">AM</SelectBox>
+            <RadioInput name="AMPM" id="PM" value="PM" checked={selectedValues.time.AMPM === "PM"} onChange={handleRadioChange} />
+            <SelectBox htmlFor="PM">PM</SelectBox>
           </AMPMWrapper>
         </UpperRowWrapper>
         <LowerRowWrapper>

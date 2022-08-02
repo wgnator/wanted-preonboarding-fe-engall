@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { CLASS_DURATION } from "../consts/config";
 import http from "../services/class-schedule";
@@ -18,14 +19,21 @@ export const useScheduleModel = () => {
   };
 
   const checkScheduleOverlap = async (data: ScheduleDataType) => {
-    return await http.get(`?startTime_gte=${data.startTime - CLASS_DURATION - 1}&startTime_lte=${data.endTime - 1}`).then((response) => {
-      if (response.data.length) throw new Error("schedule_overlap%" + response.data.map((overlappingItem: ScheduleDataType) => convertToTimeInWeekString(overlappingItem.startTime)).join(", "));
+    const checkCondition1 = new Promise((resolve, _) => resolve(http.get(`?startTime_gte=${data.startTime}&startTime_lte=${data.startTime + CLASS_DURATION - 1}`)));
+    const checkCondition2 = new Promise((resolve, _) => resolve(http.get(`?startTime_gte=${data.endTime - CLASS_DURATION}&startTime_lte=${data.endTime - 1}`)));
+    const checkCondition3 = new Promise((resolve, _) => resolve(http.get(`?endTime_gte=${data.startTime}&endTime_lte=${data.startTime + CLASS_DURATION - 1}`)));
+    const checkCondition4 = new Promise((resolve, _) => resolve(http.get(`?endTime_gte=${data.endTime - CLASS_DURATION}&endTime_lte=${data.endTime - 1}`)));
+    await Promise.all([checkCondition1, checkCondition2, checkCondition3, checkCondition4]).then((results) => {
+      results.forEach((result) => {
+        if (typeof result === "object" && result?.data.length)
+          throw new Error("schedule_overlap%" + result.data.map((overlappingItem: ScheduleDataType) => convertToTimeInWeekString(overlappingItem.startTime)).join(", "));
+      });
     });
   };
 
   const saveSlot = async (data: ScheduleDataType) => {
     if (data.endTime > MINUTES_IN_WEEK) data.endTime -= MINUTES_IN_WEEK;
-    return await checkScheduleOverlap(data).then((_) => http.post("", { ...data, userID: userID.current }).then((_) => loadData()));
+    return await checkScheduleOverlap(data).then(() => http.post("", { ...data, userID: userID.current }).then(() => loadData()));
   };
 
   const deleteSlot = (id: number) => {

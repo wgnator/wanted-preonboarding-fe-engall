@@ -1,11 +1,13 @@
 import styled from "styled-components";
 import logo from "../images/logo.png";
 import { theme } from "../styles/theme";
+import TimeZoneSelector from "./TimeZoneSelector";
 
 export default function Header() {
   return (
     <Container>
       <Img src={logo} alt="EngAll" />
+      <TimeZoneSelector />
     </Container>
   );
 }

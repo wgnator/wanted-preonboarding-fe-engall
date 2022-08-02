@@ -5,15 +5,13 @@ import Header from "../components/Header";
 import LoginPage from "./LoginPage";
 
 export function Layout() {
-  return localStorage.userID ? (
+  return (
     <Container>
       <Header />
       <Main>
         <Outlet />
       </Main>
     </Container>
-  ) : (
-    <LoginPage />
   );
 }
 

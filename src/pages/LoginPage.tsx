@@ -1,28 +1,26 @@
-import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import React, { SetStateAction, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/Button";
 import { useUsersDBModel } from "../models/useUsersDBModel";
 import { theme } from "../styles/theme";
 
-export default function LoginPage() {
+export default function LoginPage({ isLoggedIn, setIsLoggedIn }: { isLoggedIn: boolean; setIsLoggedIn: React.Dispatch<boolean> }) {
   const [inputValues, setInputValues] = useState({ userID: null, password: null });
   const { getUser } = useUsersDBModel();
-  const navigate = useNavigate();
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValues({ ...inputValues, [event.target?.name]: event.target?.value });
   };
 
-  const verifyUser = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const verifyUser = () => {
     if (inputValues.userID !== null && inputValues.password !== null)
       getUser(inputValues.userID, inputValues.password).then((response) => {
         if (response.data.length > 0) {
           localStorage.setItem("userID", response.data[0].id);
-          navigate("/view_schedule");
+          setIsLoggedIn(true);
         }
       });
-    else alert("please enter your ID and password");
+    else alert("please enter valid ID and password");
   };
 
   return (
@@ -32,7 +30,7 @@ export default function LoginPage() {
         <br />
         Tutor Login
       </h1>
-      <Form onSubmit={verifyUser}>
+      <LoginWrapper>
         <Field>
           <label htmlFor="userID">ID: </label>
           <input type="text" id="userID" name="userID" onChange={handleInputChange} />
@@ -41,8 +39,8 @@ export default function LoginPage() {
           <label htmlFor="password">Password: </label>
           <input type="password" id="password" name="password" onChange={handleInputChange} />
         </Field>
-        <Button>Login</Button>
-      </Form>
+        <Button onClick={() => verifyUser()}>Login</Button>
+      </LoginWrapper>
     </Container>
   );
 }
@@ -60,7 +58,7 @@ const Container = styled.div`
   }
 `;
 
-const Form = styled.form`
+const LoginWrapper = styled.div`
   display: flex;
   flex-direction: column;
   > * {
