@@ -19,6 +19,7 @@ const Container = styled.div`
   background-color: ${theme.headerBackgroundColor};
   display: flex;
   align-items: center;
+  justify-content: space-between;
 `;
 
 const Img = styled.img`

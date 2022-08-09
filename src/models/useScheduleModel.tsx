@@ -1,22 +1,36 @@
 import { AxiosResponse } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { CLASS_DURATION } from "../consts/config";
+import { useAppSelector } from "../hooks/reduxHooks";
 import http from "../services/class-schedule";
 import { ScheduleDataType } from "../types/types";
-import { convertToTimeInWeekString, DAYS_SEQUENCE, isInDay, MINUTES_IN_HOUR, MINUTES_IN_WEEK } from "../utils/timeCalculations";
+import { convertToInitialTimeZone, convertToTimeInWeekString, convertToUserTimeZone, DAYS_SEQUENCE, isInDay } from "../utils/timeCalculations";
 
 export const useScheduleModel = () => {
   const [data, setData] = useState([] as ScheduleDataType[]);
   const [slotsArray, setSlotsArray] = useState([[]] as ScheduleDataType[][]);
   const userID = useRef(localStorage.getItem("userID"));
+  const currentTimeZone = useAppSelector<string>((state) => state.timeZone);
 
   const loadData = () => {
     if (!userID.current) return;
     http
       .get(`?userID=${userID.current}`)
-      .then((response) => setData(response.data))
+      .then((response) =>
+        setData(
+          response.data.map((item: ScheduleDataType) => ({
+            ...item,
+            startTime: convertToUserTimeZone(item.startTime, currentTimeZone),
+            endTime: convertToUserTimeZone(item.endTime, currentTimeZone),
+          }))
+        )
+      )
       .catch((error) => alert(error));
   };
+
+  useEffect(() => {
+    loadData();
+  }, [currentTimeZone]);
 
   const checkScheduleOverlap = async (data: ScheduleDataType) => {
     const checkCondition1 = new Promise((resolve, _) => resolve(http.get(`?startTime_gte=${data.startTime}&startTime_lte=${data.startTime + CLASS_DURATION - 1}`)));
@@ -32,8 +46,8 @@ export const useScheduleModel = () => {
   };
 
   const saveSlot = async (data: ScheduleDataType) => {
-    if (data.endTime > MINUTES_IN_WEEK) data.endTime -= MINUTES_IN_WEEK;
-    return await checkScheduleOverlap(data).then(() => http.post("", { ...data, userID: userID.current }).then(() => loadData()));
+    const dataInInitialTimeZone = { startTime: convertToInitialTimeZone(data.startTime, currentTimeZone), endTime: convertToInitialTimeZone(data.endTime, currentTimeZone) };
+    return await checkScheduleOverlap(dataInInitialTimeZone).then(() => http.post("", { ...dataInInitialTimeZone, userID: userID.current }).then(() => loadData()));
   };
 
   const deleteSlot = (id: number) => {
