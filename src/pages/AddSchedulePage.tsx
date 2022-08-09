@@ -6,7 +6,7 @@ import PageTitle from "../components/PageTitle";
 import { CLASS_DURATION } from "../consts/config";
 import { useScheduleModel } from "../models/useScheduleModel";
 import { theme } from "../styles/theme";
-import { convertToMinuteOfWeek, DAYS_SEQUENCE, DAYS_TEXT, getArrayOfIntegerBetween } from "../utils/timeCalculations";
+import { convertToMinuteOfWeek, DAYS_SEQUENCE, DAYS_TEXT, getArrayOfIntegerBetween, normalizeMinuteInWeek } from "../utils/timeCalculations";
 
 type SelectedValuesStateType = {
   time: { hour: string; minute: string; AMPM: "AM" | "PM" };
@@ -45,7 +45,7 @@ export default function AddSchedulePage() {
 
     selectedDays.forEach((dayIndex) => {
       const startTimeInMinute = convertToMinuteOfWeek(dayIndex, hour, minute, AMPM);
-      saveSlot({ startTime: startTimeInMinute, endTime: startTimeInMinute + CLASS_DURATION })
+      saveSlot({ startTime: startTimeInMinute, endTime: normalizeMinuteInWeek(startTimeInMinute + CLASS_DURATION) })
         .then((_) => {
           window.alert(`Schedule saved: ${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${AMPM}`);
           navigate("/");
