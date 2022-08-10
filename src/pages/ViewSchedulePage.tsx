@@ -7,13 +7,12 @@ import { theme } from "../styles/theme";
 import { convertToTimeInDayString, DAYS_SEQUENCE } from "../utils/timeCalculations";
 import xIcon from "../images/xIcon.png";
 import { useState } from "react";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const DAYS = Object.keys(DAYS_SEQUENCE);
 
 export default function ViewSchedulePage() {
   const navigate = useNavigate();
-  // if (!localStorage.userID) navigate("/");
-  console.log("view schedule page entered");
   const { slotsArray, deleteSlot } = useScheduleModel();
   const [deleteRequestedID, setDeleteRequestedID] = useState<number | null>(null);
 
@@ -44,28 +43,13 @@ export default function ViewSchedulePage() {
         ))}
       </ScheduleDisplay>
       {deleteRequestedID && (
-        <DeleteConfirmModal>
-          <h3>Are you sure to delete this schedule? </h3>
-          <div style={{ display: "flex", width: "100%", justifyContent: "center" }}>
-            <Button
-              style={{ backgroundColor: "rgb(214, 80, 80)", width: "40%" }}
-              onClick={() => {
-                deleteRequestedID && deleteSlot(deleteRequestedID);
-                setDeleteRequestedID(null);
-              }}
-            >
-              Yes
-            </Button>
-            <Button
-              style={{ backgroundColor: "rgb(95, 184, 95)", width: "40%" }}
-              onClick={() => {
-                setDeleteRequestedID(null);
-              }}
-            >
-              No
-            </Button>
-          </div>
-        </DeleteConfirmModal>
+        <ConfirmationModal
+          message={"Are you sure to delete this schedule?"}
+          callback={(isConfirmed) => {
+            if (isConfirmed && deleteRequestedID) deleteSlot(deleteRequestedID);
+            setDeleteRequestedID(null);
+          }}
+        />
       )}
     </Container>
   );
@@ -73,6 +57,9 @@ export default function ViewSchedulePage() {
 
 const Container = styled.div`
   width: 100%;
+  max-width: 1200px;
+  min-width: 780px;
+  margin: 0 auto;
 `;
 const TitleWrapper = styled.div`
   width: 100%;
@@ -103,6 +90,7 @@ const DayLabel = styled.div`
 `;
 const Slot = styled.div`
   background-color: ${theme.elementBackroundColor};
+  min-height: 3rem;
   width: 75%;
   border-radius: 10px;
   display: flex;
@@ -120,23 +108,4 @@ const RemoveIcon = styled.img.attrs((props) => ({ src: xIcon }))`
   height: 1rem;
   color: ${theme.elementBackroundColor};
   border-radius: 50%;
-`;
-
-const DeleteConfirmModal = styled.div`
-  position: fixed;
-  background-color: ${theme.pageBackgroundColor};
-  width: 20rem;
-  height: 10rem;
-  border: black solid 1px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  top: calc((100vh - 10rem) / 2);
-  left: calc((100vw - 20rem) / 2);
-  * {
-    margin: 0.5rem;
-    text-align: center;
-  }
 `;

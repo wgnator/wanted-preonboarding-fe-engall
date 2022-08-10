@@ -16,13 +16,12 @@ export function Layout() {
 }
 
 const Container = styled.div`
-  width: 100vw;
+  width: 100%;
   height: 100vh;
 `;
 
 const Main = styled.div`
   width: 100%;
-  height: calc(100vh - 3rem);
   padding: 0 2rem;
   background-color: ${theme.pageBackgroundColor};
 `;
