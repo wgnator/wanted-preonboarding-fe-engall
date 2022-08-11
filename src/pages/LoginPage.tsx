@@ -1,26 +1,15 @@
-import React, { SetStateAction, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Button from "../components/Button";
 import { useUsersDBModel } from "../models/useUsersDBModel";
 import { theme } from "../styles/theme";
 
-export default function LoginPage({ isLoggedIn, setIsLoggedIn }: { isLoggedIn: boolean; setIsLoggedIn: React.Dispatch<boolean> }) {
+export default function LoginPage() {
   const [inputValues, setInputValues] = useState({ userID: null, password: null });
-  const { getUser } = useUsersDBModel();
+  const { verifyUser } = useUsersDBModel();
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValues({ ...inputValues, [event.target?.name]: event.target?.value });
-  };
-
-  const verifyUser = () => {
-    if (inputValues.userID !== null && inputValues.password !== null)
-      getUser(inputValues.userID, inputValues.password).then((response) => {
-        if (response.data.length > 0) {
-          localStorage.setItem("userID", response.data[0].id);
-          setIsLoggedIn(true);
-        }
-      });
-    else alert("please enter valid ID and password");
   };
 
   return (
@@ -39,7 +28,7 @@ export default function LoginPage({ isLoggedIn, setIsLoggedIn }: { isLoggedIn: b
           <label htmlFor="password">Password: </label>
           <input type="password" id="password" name="password" onChange={handleInputChange} />
         </Field>
-        <Button onClick={() => verifyUser()}>Login</Button>
+        <Button onClick={() => verifyUser(inputValues.userID, inputValues.password)}>Login</Button>
       </LoginWrapper>
     </Container>
   );
@@ -50,17 +39,32 @@ const Container = styled.div`
   height: 30rem;
   margin: 10rem auto;
   padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
   box-shadow: 1px 3px 3px 0px ${theme.shadowDarkColor};
 
   > * {
     width: 60%;
-    margin: 3rem auto;
+  }
+
+  @media (max-width: 720px) {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    > * {
+      width: 90%;
+      margin: 1rem auto;
+    }
   }
 `;
 
 const LoginWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   > * {
     margin-bottom: 2rem;
   }
@@ -68,5 +72,6 @@ const LoginWrapper = styled.div`
 
 const Field = styled.fieldset`
   display: flex;
+  width: 100%;
   justify-content: space-between;
 `;

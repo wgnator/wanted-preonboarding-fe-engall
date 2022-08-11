@@ -1,5 +1,5 @@
 import { getTimezoneOffset } from "date-fns-tz";
-import { INITIAL_TIME_ZONE } from "../consts/config";
+import { DATABASE_TIME_ZONE } from "../consts/config";
 
 export const DAYS_SEQUENCE = {
   Monday: 0,
@@ -65,12 +65,12 @@ export function convertToMinuteOfWeek(dayIndex: number, hour: number | string, m
 }
 
 export function convertToUserTimeZone(minuteInWeek: number, timeZone: string) {
-  const offsetFromInitialTimeZoneInMillisecond = getTimezoneOffset(timeZone) - getTimezoneOffset(INITIAL_TIME_ZONE);
+  const offsetFromInitialTimeZoneInMillisecond = getTimezoneOffset(timeZone) - getTimezoneOffset(DATABASE_TIME_ZONE);
   return normalizeMinuteInWeek(minuteInWeek + offsetFromInitialTimeZoneInMillisecond / (1000 * 60));
 }
 
 export function convertToInitialTimeZone(minuteInWeek: number, timeZone: string) {
-  const offsetFromInitialTimeZoneInMillisecond = getTimezoneOffset(timeZone) - getTimezoneOffset(INITIAL_TIME_ZONE);
+  const offsetFromInitialTimeZoneInMillisecond = getTimezoneOffset(timeZone) - getTimezoneOffset(DATABASE_TIME_ZONE);
   return normalizeMinuteInWeek(minuteInWeek - offsetFromInitialTimeZoneInMillisecond / (1000 * 60));
 }
 

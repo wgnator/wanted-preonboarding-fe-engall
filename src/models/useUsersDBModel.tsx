@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useAppDispatch } from "../hooks/reduxHooks";
+import { loggedIn } from "../reducers/loginReducer";
 import http from "../services/users";
 import { UserDataType } from "../types/types";
 
 export const useUsersDBModel = () => {
-  const getUser = (userID: string, password: string) => {
-    return http.get(`?id=${userID}&pw=${password}`);
+  const dispatch = useAppDispatch();
+
+  const getUserById = (userID: string) => {
+    return http.get(`?id=${userID}`);
   };
 
   const saveUser = (data: UserDataType) => {
@@ -15,5 +18,16 @@ export const useUsersDBModel = () => {
     return http.delete(id.toString());
   };
 
-  return { getUser, saveUser, deleteUser };
+  const verifyUser = (id: string | null, password: string | null) => {
+    if (id !== null && password !== null)
+      getUserById(id).then((response) => {
+        console.log(response.data);
+        if (response.data[0].pw === password) {
+          dispatch(loggedIn(id));
+        }
+      });
+    else alert("please enter valid ID and password");
+  };
+
+  return { saveUser, deleteUser, verifyUser };
 };

@@ -1,26 +1,45 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
 import { theme } from "../styles/theme";
 import { timeZoneNames } from "../consts/timeZoneNames";
-import timeZoneReducer, { timeZoneSwitched } from "../reducers/timeZoneReducer";
+import { timeZoneSwitched } from "../reducers/timeZoneReducer";
+import { hasClickedOutsideElement } from "../utils/UIFunctions";
+import { useLocation } from "react-router-dom";
 
 export default function TimeZoneSelector() {
+  const [isSelecting, setIsSelecting] = useState(false);
+  const dropdownContainerRef = useRef(null);
   const timeZone = useAppSelector((state) => state.timeZone);
   const dispatch = useAppDispatch();
-  const [isDropdownShowing, setIsDropdownShowing] = useState(false);
-  console.log(timeZone);
+  const { pathname } = useLocation();
+
+  const clickedOutsideElementListener = (event: MouseEvent) => {
+    if (hasClickedOutsideElement(event, dropdownContainerRef.current)) setIsSelecting(false);
+  };
+
+  useEffect(() => {
+    document.body.addEventListener("click", clickedOutsideElementListener, false);
+    return () => {
+      document.body.removeEventListener("click", clickedOutsideElementListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsSelecting(false);
+  }, [timeZone]);
+
   return (
-    <Container>
-      <CurrentTimeZone onClick={() => setIsDropdownShowing(true)}>Time Zone: {timeZone}</CurrentTimeZone>
-      {isDropdownShowing && (
+    <Container onClick={() => setIsSelecting(true)} ref={dropdownContainerRef}>
+      <CurrentTimeZone>Time Zone: {timeZone}</CurrentTimeZone>
+      {isSelecting && pathname !== "/add_schedule" && (
         <DropdownContainer>
-          {timeZoneNames.map((timeZoneName) => (
+          {timeZoneNames.map((timeZoneName: string) => (
             <TimeZoneItem
               key={timeZoneName}
               onClick={() => {
                 dispatch(timeZoneSwitched(timeZoneName));
-                setIsDropdownShowing(false);
+                setIsSelecting(false);
               }}
             >
               {timeZoneName}
@@ -38,6 +57,7 @@ const Container = styled.div`
   height: 80%;
   position: relative;
   border: 2px solid white;
+  cursor: pointer;
 `;
 
 const CurrentTimeZone = styled.div`
@@ -47,7 +67,6 @@ const CurrentTimeZone = styled.div`
   justify-content: center;
   align-items: center;
   color: white;
-  cursor: pointer;
 `;
 
 const DropdownContainer = styled.ul`
@@ -59,6 +78,23 @@ const DropdownContainer = styled.ul`
   border: ${theme.borderColor} 1px solid;
   background-color: rgb(255, 255, 255);
   overflow-y: scroll;
+  z-index: 10;
+  @media (max-width: 720px) {
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height: 90vh;
+    transition: all 0.5s;
+    animation: slideFromTop 0.5s forwards;
+  }
+  @keyframes slideFromTop {
+    0% {
+      top: -100%;
+    }
+    100% {
+      top: 0%;
+    }
+  }
 `;
 
 const TimeZoneItem = styled.div`

@@ -8,12 +8,13 @@ import { convertToTimeInDayString, DAYS_SEQUENCE } from "../utils/timeCalculatio
 import xIcon from "../images/xIcon.png";
 import { useState } from "react";
 import ConfirmationModal from "../components/ConfirmationModal";
+import LoadingCircle from "../components/LoadingCircle";
 
 const DAYS = Object.keys(DAYS_SEQUENCE);
 
 export default function ViewSchedulePage() {
   const navigate = useNavigate();
-  const { slotsArray, deleteSlot } = useScheduleModel();
+  const { slotsArray, deleteSlot, isLoading } = useScheduleModel();
   const [deleteRequestedID, setDeleteRequestedID] = useState<number | null>(null);
 
   return (
@@ -22,25 +23,29 @@ export default function ViewSchedulePage() {
         <PageTitle>Class Schedule</PageTitle>
         <Button onClick={() => navigate("/add_schedule")}>Add Class Schedule</Button>
       </TitleWrapper>
-      <ScheduleDisplay>
-        {slotsArray.map((slotsInDay, dayIndex) => (
-          <DayColumn key={dayIndex}>
-            <DayLabel>{DAYS[dayIndex]}</DayLabel>
-            {slotsInDay &&
-              slotsInDay.map((slot) => (
-                <Slot key={slot.id}>
-                  <TimeText>
-                    {convertToTimeInDayString(slot.startTime)} - {convertToTimeInDayString(slot.endTime)}
-                  </TimeText>
-                  <RemoveIcon
-                    onClick={() => {
-                      setDeleteRequestedID(slot.id || null);
-                    }}
-                  />
-                </Slot>
-              ))}
-          </DayColumn>
-        ))}
+      <ScheduleDisplay isLoading={isLoading}>
+        {isLoading ? (
+          <LoadingCircle color={theme.headerBackgroundColor} backgroundColor="white" />
+        ) : (
+          slotsArray.map((slotsInDay, dayIndex) => (
+            <DayColumn key={dayIndex}>
+              <DayLabel>{DAYS[dayIndex]}</DayLabel>
+              {slotsInDay &&
+                slotsInDay.map((slot) => (
+                  <Slot key={slot.id}>
+                    <TimeText>
+                      {convertToTimeInDayString(slot.startTime)} - {convertToTimeInDayString(slot.endTime)}
+                    </TimeText>
+                    <RemoveIcon
+                      onClick={() => {
+                        setDeleteRequestedID(slot.id || null);
+                      }}
+                    />
+                  </Slot>
+                ))}
+            </DayColumn>
+          ))
+        )}
       </ScheduleDisplay>
       {deleteRequestedID && (
         <ConfirmationModal
@@ -60,6 +65,10 @@ const Container = styled.div`
   max-width: 1200px;
   min-width: 780px;
   margin: 0 auto;
+  @media (max-width: 720px) {
+    max-width: none;
+    min-width: 0;
+  }
 `;
 const TitleWrapper = styled.div`
   width: 100%;
@@ -67,14 +76,24 @@ const TitleWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
-const ScheduleDisplay = styled.div`
+const ScheduleDisplay = styled.div<{ isLoading: boolean }>`
   width: 100%;
   min-height: 15rem;
-
+  position: relative;
   padding: 1rem;
   box-shadow: 1px 3px 3px 0px ${theme.shadowDarkColor};
   background-color: white;
   display: flex;
+  ${(props) =>
+    props.isLoading &&
+    `
+    justify-content: center;
+    align-items: center;
+    height: 15rem;
+  `}
+  @media (max-width: 720px) {
+    flex-direction: column;
+  }
 `;
 
 const DayColumn = styled.div`
@@ -94,7 +113,8 @@ const Slot = styled.div`
   width: 75%;
   border-radius: 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   margin: 1rem 0;
   padding: 0.3rem;
 `;
@@ -108,4 +128,9 @@ const RemoveIcon = styled.img.attrs((props) => ({ src: xIcon }))`
   height: 1rem;
   color: ${theme.elementBackroundColor};
   border-radius: 50%;
+`;
+
+const LoadingCircleContainer = styled.div`
+  width: fit-content;
+  height: fit-content;
 `;
