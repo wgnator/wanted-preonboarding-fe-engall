@@ -1,4 +1,4 @@
-# Engall Schedule Management Project
+# EngAll Tutor Schedule Management Project
 
 ## How to run:
 
