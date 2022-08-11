@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/Button";
 import PageTitle from "../components/PageTitle";
-import { CLASS_DURATION } from "../consts/config";
 import { useScheduleModel } from "../models/useScheduleModel";
 import { theme } from "../styles/theme";
-import { convertToMinuteOfWeek, DAYS_SEQUENCE, DAYS_TEXT, getArrayOfIntegerBetween, normalizeMinuteInWeek } from "../utils/timeCalculations";
+import { DAYS_SEQUENCE, getArrayOfIntegerBetween } from "../utils/timeCalculations";
+import { hasClickedOutsideElement } from "../utils/UIFunctions";
+
+export type SelectedTimeType = { hour: string; minute: string; AMPM: "AM" | "PM" };
 
 type SelectedValuesStateType = {
-  time: { hour: string; minute: string; AMPM: "AM" | "PM" };
+  time: SelectedTimeType;
   daysArray: boolean[];
 };
 
@@ -28,7 +30,7 @@ export default function AddSchedulePage() {
   const [isSelecting, setIsSelecting] = useState<IsSelectingStateType>({ hour: false, minute: false });
   const hoursContainerRef = useRef<HTMLUListElement>(null);
   const minutesContainerRef = useRef<HTMLUListElement>(null);
-  const { saveSlot } = useScheduleModel();
+  const { processAndSaveSchedule } = useScheduleModel();
   const navigate = useNavigate();
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,36 +41,21 @@ export default function AddSchedulePage() {
     setSelectedValues({ ...selectedValues, daysArray: selectedValues.daysArray.map((currentState: boolean, _index: number) => (_index === index ? isChecked : currentState)) });
   };
 
-  const onClickSave = () => {
-    const { hour, minute, AMPM } = selectedValues.time;
-    const selectedDays = selectedValues.daysArray.reduce((acc, isChecked, index) => (isChecked ? [...acc, index] : acc), [] as number[]);
-
-    selectedDays.forEach((dayIndex) => {
-      const startTimeInMinute = convertToMinuteOfWeek(dayIndex, hour, minute, AMPM);
-      saveSlot({ startTime: startTimeInMinute, endTime: normalizeMinuteInWeek(startTimeInMinute + CLASS_DURATION) })
-        .then((_) => {
-          window.alert(`Schedule saved: ${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${AMPM}`);
-          navigate("/");
-        })
-        .catch((error) => {
-          window.alert(
-            error.message.includes("schedule_overlap")
-              ? `Oops! Your entered schedule time "${DAYS_TEXT[dayIndex]} ${hour}:${minute} ${AMPM}" overlaps with saved schedule starting at "${error.message.split("%")[1]}" \n`
-              : error.message
-          );
-        });
-    });
+  const onClickSave = async () => {
+    const selectedDayIndexes = selectedValues.daysArray.reduce((acc, isChecked, index) => (isChecked ? [...acc, index] : acc), [] as number[]);
+    await processAndSaveSchedule(selectedValues.time, selectedDayIndexes);
+    navigate("/");
   };
 
-  const detectHasClickedOutsidePicker = (event: MouseEvent) => {
-    if (!event.composedPath().find((_path) => _path === hoursContainerRef.current) && !event.composedPath().find((_path) => _path === minutesContainerRef.current))
-      setIsSelecting({ hour: false, minute: false });
+  const clickedOutsideElementListener = (event: MouseEvent) => {
+    if (hasClickedOutsideElement(event, hoursContainerRef.current)) setIsSelecting({ ...isSelecting, hour: false });
+    if (hasClickedOutsideElement(event, minutesContainerRef.current)) setIsSelecting({ ...isSelecting, minute: false });
   };
 
   useEffect(() => {
-    document.body.addEventListener("click", detectHasClickedOutsidePicker);
+    document.body.addEventListener("click", clickedOutsideElementListener, false);
     return () => {
-      document.body.removeEventListener("click", detectHasClickedOutsidePicker);
+      document.body.removeEventListener("click", clickedOutsideElementListener, false);
     };
   }, []);
 
@@ -81,16 +68,18 @@ export default function AddSchedulePage() {
       <PageTitle>Add Class Schedule</PageTitle>
       <OptionsContainer>
         <UpperRowWrapper>
-          <h4>Start time</h4>
-          <SelectionWindow isOpen={isSelecting.hour}>
-            <Ul ref={hoursContainerRef}>
+          <FieldLabel>Start time</FieldLabel>
+          <TimeSelection>
+            <SelectionWindow>
               {isSelecting.hour ? (
-                HOURS_ARRAY.map((hour) => (
-                  <Li key={hour + "h"}>
-                    <RadioInput name="hour" id={hour + "h"} key={hour} value={hour} checked={selectedValues.time.hour === hour} onChange={handleRadioChange} />
-                    <SelectBox htmlFor={hour + "h"}>{hour}</SelectBox>
-                  </Li>
-                ))
+                <Ul ref={hoursContainerRef}>
+                  {HOURS_ARRAY.map((hour) => (
+                    <Li key={hour + "h"}>
+                      <RadioInput name="hour" id={hour + "h"} key={hour} value={hour} checked={selectedValues.time.hour === hour} onChange={handleRadioChange} />
+                      <SelectionItem htmlFor={hour + "h"}>{hour}</SelectionItem>
+                    </Li>
+                  ))}
+                </Ul>
               ) : (
                 <SelectedDisplay
                   onClick={(event) => {
@@ -101,18 +90,18 @@ export default function AddSchedulePage() {
                   {selectedValues.time.hour}
                 </SelectedDisplay>
               )}
-            </Ul>
-          </SelectionWindow>
-          <span>:</span>
-          <SelectionWindow isOpen={isSelecting.minute}>
-            <Ul ref={minutesContainerRef}>
+            </SelectionWindow>
+            <span>:</span>
+            <SelectionWindow>
               {isSelecting.minute ? (
-                MINUTES_ARRAY.map((minute) => (
-                  <Li key={minute + "m"}>
-                    <RadioInput name="minute" id={minute + "m"} key={minute} value={minute} checked={selectedValues.time.minute === minute} onChange={handleRadioChange} />
-                    <SelectBox htmlFor={minute + "m"}>{minute}</SelectBox>
-                  </Li>
-                ))
+                <Ul ref={minutesContainerRef}>
+                  {MINUTES_ARRAY.map((minute) => (
+                    <Li key={minute + "m"}>
+                      <RadioInput name="minute" id={minute + "m"} key={minute} value={minute} checked={selectedValues.time.minute === minute} onChange={handleRadioChange} />
+                      <SelectionItem htmlFor={minute + "m"}>{minute}</SelectionItem>
+                    </Li>
+                  ))}
+                </Ul>
               ) : (
                 <SelectedDisplay
                   onClick={(event) => {
@@ -123,43 +112,45 @@ export default function AddSchedulePage() {
                   {selectedValues.time.minute}
                 </SelectedDisplay>
               )}
-            </Ul>
-          </SelectionWindow>
-          <AMPMWrapper>
-            <RadioInput name="AMPM" id="AM" value="AM" checked={selectedValues.time.AMPM === "AM"} onChange={handleRadioChange} />
-            <SelectBox htmlFor="AM">AM</SelectBox>
-            <RadioInput name="AMPM" id="PM" value="PM" checked={selectedValues.time.AMPM === "PM"} onChange={handleRadioChange} />
-            <SelectBox htmlFor="PM">PM</SelectBox>
-          </AMPMWrapper>
+            </SelectionWindow>
+            <AMPMWrapper>
+              <RadioInput name="AMPM" id="AM" value="AM" checked={selectedValues.time.AMPM === "AM"} onChange={handleRadioChange} />
+              <SelectBox htmlFor="AM">AM</SelectBox>
+              <RadioInput name="AMPM" id="PM" value="PM" checked={selectedValues.time.AMPM === "PM"} onChange={handleRadioChange} />
+              <SelectBox htmlFor="PM">PM</SelectBox>
+            </AMPMWrapper>
+          </TimeSelection>
         </UpperRowWrapper>
         <LowerRowWrapper>
-          <h4>Repeat on</h4>
-          {Object.keys(DAYS_SEQUENCE).map((day, index) => (
-            <div key={day}>
-              <CheckboxInput
-                id={day}
-                name="days"
-                value={day}
-                checked={selectedValues.daysArray[index]}
-                onChange={(event) => {
-                  handleCheckboxChange(index, event.target.checked);
-                }}
-              />
-              <SelectBox htmlFor={day}> {day}</SelectBox>
-            </div>
-          ))}
+          <ReapeatOnWrapper>
+            <FieldLabel>Repeat on</FieldLabel>
+            {Object.keys(DAYS_SEQUENCE).map((day, index) => (
+              <div key={day}>
+                <CheckboxInput
+                  id={day}
+                  name="days"
+                  value={day}
+                  checked={selectedValues.daysArray[index]}
+                  onChange={(event) => {
+                    handleCheckboxChange(index, event.target.checked);
+                  }}
+                />
+                <SelectBox htmlFor={day}> {day}</SelectBox>
+              </div>
+            ))}
+          </ReapeatOnWrapper>
+
+          <ButtonsWrapper>
+            <AddSchedulePageButton
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              Back To View Schedule
+            </AddSchedulePageButton>
+            <AddSchedulePageButton onClick={onClickSave}>Save</AddSchedulePageButton>
+          </ButtonsWrapper>
         </LowerRowWrapper>
-        <Button
-          style={{ position: "absolute", bottom: "1rem", right: "13rem" }}
-          onClick={() => {
-            navigate("/");
-          }}
-        >
-          Back To View Schedule
-        </Button>
-        <Button style={{ position: "absolute", bottom: "1rem", right: "1rem" }} onClick={onClickSave}>
-          Save
-        </Button>
       </OptionsContainer>
     </Container>
   );
@@ -182,40 +173,47 @@ const OptionsContainer = styled.div`
   padding: 1rem;
   box-shadow: 1px 3px 3px 0px ${theme.shadowDarkColor};
   background-color: white;
-
   justify-content: space-around;
+  @media (max-width: 720px) {
+    max-height: fit-content;
+  }
 `;
 
+const FieldLabel = styled.h4`
+  width: 6rem;
+  @media (max-width: 720px) {
+    width: 100%;
+  }
+`;
 const UpperRowWrapper = styled.div`
   width: 100%;
-  height: 8rem;
+  height: 7rem;
   display: flex;
 
   > * {
     margin: 0.5rem;
-    width: fit-content;
   }
   * {
     z-index: 1;
   }
-`;
-
-const LowerRowWrapper = styled.div`
-  width: 100%;
-  height: 3rem;
-  display: flex;
-  overflow-x: auto;
-  > * {
-    margin: 0 0.5rem;
-    width: 6rem;
+  @media (max-width: 720px) {
+    flex-direction: column;
   }
 `;
-const SelectionWindow = styled.div<{ isOpen: boolean }>`
+
+const TimeSelection = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  @media (max-width: 720px) {
+    width: 100%;
+    justify-content: left;
+  }
+`;
+const SelectionWindow = styled.div`
   width: 3rem;
-  height: ${(props) => (props.isOpen ? "6rem" : "2rem")};
+  height: 2rem;
   padding: 0;
-  overflow: hidden;
-  ${(props) => (props.isOpen ? `border-top: ${theme.borderColor} 1px solid; border-bottom: ${theme.borderColor} 1px solid;` : "")};
+  position: relative;
 `;
 
 const SelectedDisplay = styled.div`
@@ -225,20 +223,23 @@ const SelectedDisplay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  * {
-  }
 `;
 const Ul = styled.ul`
-  width: 131%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  width: 100%;
+  top: 0;
+  position: absolute;
+  overflow: hidden;
+  border: ${theme.borderColor} 1px solid;
 `;
 
 const Li = styled.li`
   width: 100%;
   height: 2rem;
   background-color: white;
+  border-bottom: ${theme.borderColor} 1px solid;
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 const AMPMWrapper = styled.div`
   display: flex;
@@ -246,13 +247,10 @@ const AMPMWrapper = styled.div`
   height: 100%;
 `;
 
-const SelectBox = styled.label`
-  top: 0;
+const SelectionItem = styled.label`
   min-width: 3rem;
   padding: 1rem;
   height: 2rem;
-  box-sizing: border-box;
-  border: ${theme.borderColor} 1px solid;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -261,6 +259,32 @@ const SelectBox = styled.label`
   }
 `;
 
+const LowerRowWrapper = styled.div`
+  width: 100%;
+  height: 7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  > * {
+    margin: 0 0.5rem;
+  }
+  @media (max-width: 720px) {
+    flex-direction: column;
+    height: fit-content;
+  }
+`;
+
+const ReapeatOnWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  @media (max-width: 720px) {
+    flex-direction: column;
+    margin-bottom: 2rem;
+  }
+`;
 const RadioInput = styled.input.attrs((props) => ({ type: "radio" }))`
   width: 0;
   height: 0;
@@ -284,3 +308,23 @@ const CheckboxInput = styled.input.attrs((props) => ({ type: "checkbox" }))`
     border-color: ${theme.elementSelectedColor};
   }
 `;
+
+const SelectBox = styled.label`
+  min-width: 3rem;
+  padding: 1rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: ${theme.borderColor} 1px solid;
+  &:hover {
+    box-shadow: 1px 3px 3px 0px ${theme.shadowDarkColor};
+  }
+`;
+const ButtonsWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: right;
+  gap: 2rem;
+`;
+const AddSchedulePageButton = styled(Button)``;

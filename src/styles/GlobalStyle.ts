@@ -28,8 +28,15 @@ time, mark, audio, video {
 body {
   height: 100vh;
   margin: 0;
+
 }
-  
+
+#root {
+  height: 100%;
+  @media (max-width: 720px) {
+    width: 100vw;
+  }
+}
   h1 {
     font-size: 1.5rem;
     letter-spacing: 1.2px;
