@@ -1,4 +1,4 @@
-# Engall project
+# Engall Schedule Management Project
 
 ## How to run:
 
@@ -43,7 +43,7 @@ Connect to http://localhost:5173 on browser
 ## Implementation Details:
 
 - For schedule & user database, `json-server` library is used.
-- Time information handling: since the time slots in this app only contains time in week rather than a live time, start time and end time of classes are turned into the nth-minute past from the start of the week for simplicity, rather than storing day & time information. We can benefit from it when it comes to handling each user's different time zone setting, including summer time application for certain countries.
+- Time information handling: since the time slots in this app only contains time in week rather than an actual timestamp, start time and end time of classes are turned into the nth-minute past from the start of the week for simplicity, rather than storing day & time information. We can benefit from it when it comes to handling each user's different time zone setting, including summer time application for certain countries.
 - Avoiding using time related libraries such as date-fns was intentional. The goal was to create calculation methods as much as possible not using outside libraries. However, `date-fns-tz` library is used, only to `getTimezoneOffset` from user's time zone to UTC and UTC from Seoul, Korea, as which the database is set.
 - The difficulty of handling time in week without specifying a real timestamp comes in the nature that it has to be 'circular'. For example, if an user puts in a schedule slot starting Sunday 11:40 p.m.(minute in week: 10060), the end of the class must be Monday 00:20 a.m. Now, the simply adding 40 minutes to the start time(minute in week: 10100) will break the data integrity, since there could be an already overlapping slot, say, starting Monday 00:00 a.m.(minute in week: 0), not producing an overlap error because the numbers in data do not overlap.
 - To handle this problem, 2 utilities are provided:
