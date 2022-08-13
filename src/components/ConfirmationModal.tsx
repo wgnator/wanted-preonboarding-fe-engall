@@ -1,22 +1,19 @@
+import { ComponentPropsWithRef } from "react";
+import { ComponentProps, PropsWithChildren } from "react";
 import styled from "styled-components";
 import Button from "../components/Button";
 import { theme } from "../styles/theme";
 
-type ConfirmationModalType = {
-  message: string;
+type ConfirmationModalType = PropsWithChildren & {
   callback: (isConfirmed: boolean) => void;
 };
-export default function ConfirmationModal({ message, callback }: ConfirmationModalType) {
+export default function ConfirmationModal({ callback, children }: ConfirmationModalType) {
   return (
     <Container>
-      <h3>{message}</h3>
+      <h3>{children}</h3>
       <ButtonWrapper>
-        <Button style={{ backgroundColor: "rgb(214, 80, 80)", width: "40%" }} onClick={() => callback(true)}>
-          Yes
-        </Button>
-        <Button style={{ backgroundColor: "rgb(95, 184, 95)", width: "40%" }} onClick={() => callback(false)}>
-          No
-        </Button>
+        <YesButton onClick={() => callback(true)}>Yes</YesButton>
+        <NoButton onClick={() => callback(false)}>No</NoButton>
       </ButtonWrapper>
     </Container>
   );
@@ -45,4 +42,14 @@ const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   justify-content: center;
+`;
+
+const YesButton = styled(Button)`
+  background-color: rgb(214, 80, 80);
+  width: 40%;
+`;
+
+const NoButton = styled(Button)`
+  background-color: rgb(95, 184, 95);
+  width: 40%;
 `;

@@ -49,12 +49,13 @@ export default function ViewSchedulePage() {
       </ScheduleDisplay>
       {deleteRequestedID && (
         <ConfirmationModal
-          message={"Are you sure to delete this schedule?"}
           callback={(isConfirmed) => {
             if (isConfirmed && deleteRequestedID) deleteSlot(deleteRequestedID);
             setDeleteRequestedID(null);
           }}
-        />
+        >
+          Are you sure to delete this schedule?
+        </ConfirmationModal>
       )}
     </Container>
   );
