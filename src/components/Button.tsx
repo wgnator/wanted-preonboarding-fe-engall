@@ -1,8 +1,9 @@
+import { ComponentProps, PropsWithChildren } from "react";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 
-export default function Button({ ...props }) {
-  return <Container {...props}></Container>;
+export default function Button(props: ComponentProps<any>) {
+  return <Container {...props} />;
 }
 
 const Container = styled.button`

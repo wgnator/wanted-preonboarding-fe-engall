@@ -31,7 +31,7 @@ export function isInDay(minuteInWeek: number, day: keyof typeof DAYS_SEQUENCE) {
 
 export function convertToTimeInDayString(minuteInWeek: number) {
   const minuteInTheDay = minuteInWeek % MINUTES_IN_DAY;
-  const hour = (Math.floor(minuteInTheDay / MINUTES_IN_HOUR) % 12).toString();
+  const hour = (Math.floor(minuteInTheDay / MINUTES_IN_HOUR) % 12 || (minuteInTheDay < MINUTES_IN_HOUR * 12 ? 0 : 12)).toString();
   const minute = (minuteInTheDay % MINUTES_IN_HOUR).toString();
   const AMPMText = minuteInTheDay < 720 ? "AM" : "PM";
   return `${hour.length < 2 ? "0" + hour : hour}:${minute.length < 2 ? "0" + minute : minute} ${AMPMText}`;

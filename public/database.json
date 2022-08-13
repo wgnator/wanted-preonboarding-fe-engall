@@ -109,12 +109,6 @@
       "id": 47
     },
     {
-      "startTime": 4745,
-      "endTime": 4785,
-      "userID": "john0123",
-      "id": 49
-    },
-    {
       "startTime": 0,
       "endTime": 40,
       "userID": "john0123",
@@ -133,12 +127,6 @@
       "id": 59
     },
     {
-      "startTime": 60,
-      "endTime": 100,
-      "userID": "john0123",
-      "id": 60
-    },
-    {
       "startTime": 1500,
       "endTime": 1540,
       "userID": "john0123",
@@ -149,12 +137,6 @@
       "endTime": 2980,
       "userID": "john0123",
       "id": 62
-    },
-    {
-      "startTime": 4380,
-      "endTime": 4420,
-      "userID": "john0123",
-      "id": 63
     },
     {
       "startTime": 5820,
