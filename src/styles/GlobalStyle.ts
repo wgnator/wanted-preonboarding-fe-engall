@@ -41,4 +41,12 @@ body {
     font-size: 1.5rem;
     letter-spacing: 1.2px;
   }
+  @keyframes appear-opacity {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 `;

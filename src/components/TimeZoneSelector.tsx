@@ -4,8 +4,8 @@ import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
 import { theme } from "../styles/theme";
 import { timeZoneNames } from "../consts/timeZoneNames";
 import { timeZoneSwitched } from "../reducers/timeZoneReducer";
-import { hasClickedOutsideElement } from "../utils/UIFunctions";
 import { useLocation } from "react-router-dom";
+import useDetectOutsideClick from "../utils/useDetectOutsideClick";
 
 export default function TimeZoneSelector() {
   const [isSelecting, setIsSelecting] = useState(false);
@@ -14,16 +14,7 @@ export default function TimeZoneSelector() {
   const dispatch = useAppDispatch();
   const { pathname } = useLocation();
 
-  const clickedOutsideElementListener = (event: MouseEvent) => {
-    if (hasClickedOutsideElement(event, dropdownContainerRef.current)) setIsSelecting(false);
-  };
-
-  useEffect(() => {
-    document.body.addEventListener("click", clickedOutsideElementListener, false);
-    return () => {
-      document.body.removeEventListener("click", clickedOutsideElementListener);
-    };
-  }, []);
+  useDetectOutsideClick([dropdownContainerRef], () => setIsSelecting(false));
 
   useEffect(() => {
     setIsSelecting(false);

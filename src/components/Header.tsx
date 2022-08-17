@@ -6,9 +6,9 @@ import { loggedOut } from "../reducers/loginReducer";
 import { theme } from "../styles/theme";
 import TimeZoneSelector from "./TimeZoneSelector";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { useEffect, useRef, useState } from "react";
-import { th } from "date-fns/locale";
-import { hasClickedOutsideElement } from "../utils/UIFunctions";
+import { useRef, useState } from "react";
+
+import useDetectOutsideClick from "../utils/useDetectOutsideClick";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -17,16 +17,7 @@ export default function Header() {
   const hamburgerRef = useRef(null);
   const functionalComponentsRef = useRef(null);
 
-  const clickedOutsideElementListener = (event: MouseEvent) => {
-    if (hasClickedOutsideElement(event, hamburgerRef.current) && hasClickedOutsideElement(event, functionalComponentsRef.current)) setIsHamburgerOpened(false);
-  };
-
-  useEffect(() => {
-    document.body.addEventListener("click", clickedOutsideElementListener, false);
-    return () => {
-      document.body.removeEventListener("click", clickedOutsideElementListener);
-    };
-  }, []);
+  useDetectOutsideClick([hamburgerRef, functionalComponentsRef], () => setIsHamburgerOpened(false));
 
   return (
     <Container>

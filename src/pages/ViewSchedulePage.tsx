@@ -2,20 +2,22 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/Button";
 import PageTitle from "../components/PageTitle";
-import { useScheduleModel } from "../models/useScheduleModel";
+import { useScheduleDB } from "../api-requests/useScheduleDB";
 import { theme } from "../styles/theme";
-import { convertToTimeInDayString, DAYS_SEQUENCE } from "../utils/timeCalculations";
+import { convertToTimeInDayString, DAYS_TEXT } from "../utils/timeCalculations";
 import xIcon from "../images/xIcon.png";
 import { useState } from "react";
 import ConfirmationModal from "../components/ConfirmationModal";
 import LoadingCircle from "../components/LoadingCircle";
 
-const DAYS = Object.keys(DAYS_SEQUENCE);
-
 export default function ViewSchedulePage() {
   const navigate = useNavigate();
-  const { slotsArray, deleteSlot, isLoading } = useScheduleModel();
-  const [deleteRequestedID, setDeleteRequestedID] = useState<number | null>(null);
+  const { slotsArray, deleteSlot, isLoading } = useScheduleDB();
+  const [deleteRequestedID, setDeleteRequestedID] = useState<null | number>(null);
+
+  const confirmDelete = (slotID: number) => {
+    setDeleteRequestedID(slotID);
+  };
 
   return (
     <Container>
@@ -29,18 +31,14 @@ export default function ViewSchedulePage() {
         ) : (
           slotsArray.map((slotsInDay, dayIndex) => (
             <DayColumn key={dayIndex}>
-              <DayLabel>{DAYS[dayIndex]}</DayLabel>
+              <DayLabel>{DAYS_TEXT[dayIndex]}</DayLabel>
               {slotsInDay &&
                 slotsInDay.map((slot) => (
                   <Slot key={slot.id}>
                     <TimeText>
                       {convertToTimeInDayString(slot.startTime)} - {convertToTimeInDayString(slot.endTime)}
                     </TimeText>
-                    <RemoveIcon
-                      onClick={() => {
-                        setDeleteRequestedID(slot.id || null);
-                      }}
-                    />
+                    <RemoveIcon onClick={() => slot.id && confirmDelete(slot.id)} />
                   </Slot>
                 ))}
             </DayColumn>
@@ -49,8 +47,9 @@ export default function ViewSchedulePage() {
       </ScheduleDisplay>
       {deleteRequestedID && (
         <ConfirmationModal
-          callback={(isConfirmed) => {
-            if (isConfirmed && deleteRequestedID) deleteSlot(deleteRequestedID);
+          confirmationType="confirm or reject"
+          onConfirm={(isConfirmed) => {
+            isConfirmed && deleteSlot(deleteRequestedID);
             setDeleteRequestedID(null);
           }}
         >
@@ -129,9 +128,4 @@ const RemoveIcon = styled.img.attrs((props) => ({ src: xIcon }))`
   height: 1rem;
   color: ${theme.elementBackroundColor};
   border-radius: 50%;
-`;
-
-const LoadingCircleContainer = styled.div`
-  width: fit-content;
-  height: fit-content;
 `;

@@ -3,7 +3,7 @@ import { loggedIn } from "../reducers/loginReducer";
 import http from "../services/users";
 import { UserDataType } from "../types/types";
 
-export const useUsersDBModel = () => {
+export const useUsersDB = () => {
   const dispatch = useAppDispatch();
 
   const getUserById = (userID: string) => {

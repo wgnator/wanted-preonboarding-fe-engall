@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/Button";
 import PageTitle from "../components/PageTitle";
-import { useScheduleModel } from "../models/useScheduleModel";
+import { useScheduleDB } from "../api-requests/useScheduleDB";
 import { theme } from "../styles/theme";
-import { DAYS_SEQUENCE, getArrayOfIntegerBetween } from "../utils/timeCalculations";
-import { hasClickedOutsideElement } from "../utils/UIFunctions";
+import { convertToMinuteOfWeek, DAYS_SEQUENCE, getArrayOfIntegerBetween, normalizeMinuteInWeek } from "../utils/timeCalculations";
+import useDetectOutsideClick from "../utils/useDetectOutsideClick";
+import ConfirmationModal from "../components/ConfirmationModal";
+import { CLASS_DURATION } from "../consts/config";
 
 export type SelectedTimeType = { hour: string; minute: string; AMPM: "AM" | "PM" };
 
@@ -28,9 +30,10 @@ const initialSelectedValues: SelectedValuesStateType = {
 export default function AddSchedulePage() {
   const [selectedValues, setSelectedValues] = useState<SelectedValuesStateType>(initialSelectedValues);
   const [isSelecting, setIsSelecting] = useState<IsSelectingStateType>({ hour: false, minute: false });
+  const [alertModalState, setAlertModalState] = useState({ isShowing: false, message: "" });
   const hoursContainerRef = useRef<HTMLUListElement>(null);
   const minutesContainerRef = useRef<HTMLUListElement>(null);
-  const { processAndSaveSchedule } = useScheduleModel();
+  const { saveSlots } = useScheduleDB();
   const navigate = useNavigate();
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,22 +45,23 @@ export default function AddSchedulePage() {
   };
 
   const onClickSave = async () => {
-    const selectedDayIndexes = selectedValues.daysArray.reduce((acc, isChecked, index) => (isChecked ? [...acc, index] : acc), [] as number[]);
-    await processAndSaveSchedule(selectedValues.time, selectedDayIndexes);
-    navigate("/");
+    saveSlots(convertSelectedValuesToDBDataFormat(selectedValues)).then((response) => showAlertMessage(response));
   };
 
-  const clickedOutsideElementListener = (event: MouseEvent) => {
-    if (hasClickedOutsideElement(event, hoursContainerRef.current)) setIsSelecting({ ...isSelecting, hour: false });
-    if (hasClickedOutsideElement(event, minutesContainerRef.current)) setIsSelecting({ ...isSelecting, minute: false });
+  const convertSelectedValuesToDBDataFormat = (selectedValues: SelectedValuesStateType) => {
+    const { hour, minute, AMPM } = selectedValues.time;
+    const dayIndexes = selectedValues.daysArray.reduce((acc, isChecked, index) => (isChecked ? [...acc, index] : acc), [] as number[]);
+    return dayIndexes.map((dayIndex) => {
+      const startTimeInMinute = convertToMinuteOfWeek(dayIndex, hour, minute, AMPM);
+      return { startTime: startTimeInMinute, endTime: normalizeMinuteInWeek(startTimeInMinute + CLASS_DURATION) };
+    });
+  };
+  const showAlertMessage = (errorMessage: string) => {
+    setAlertModalState({ isShowing: true, message: errorMessage });
   };
 
-  useEffect(() => {
-    document.body.addEventListener("click", clickedOutsideElementListener, false);
-    return () => {
-      document.body.removeEventListener("click", clickedOutsideElementListener, false);
-    };
-  }, []);
+  useDetectOutsideClick([hoursContainerRef], () => setIsSelecting({ ...isSelecting, hour: false }));
+  useDetectOutsideClick([minutesContainerRef], () => setIsSelecting({ ...isSelecting, minute: false }));
 
   useEffect(() => {
     setIsSelecting({ hour: false, minute: false });
@@ -122,8 +126,8 @@ export default function AddSchedulePage() {
           </TimeSelection>
         </UpperRowWrapper>
         <LowerRowWrapper>
+          <FieldLabel>Repeat on</FieldLabel>
           <ReapeatOnWrapper>
-            <FieldLabel>Repeat on</FieldLabel>
             {Object.keys(DAYS_SEQUENCE).map((day, index) => (
               <div key={day}>
                 <CheckboxInput
@@ -139,19 +143,23 @@ export default function AddSchedulePage() {
               </div>
             ))}
           </ReapeatOnWrapper>
-
-          <ButtonsWrapper>
-            <AddSchedulePageButton
-              onClick={() => {
-                navigate("/");
-              }}
-            >
-              Back To View Schedule
-            </AddSchedulePageButton>
-            <AddSchedulePageButton onClick={onClickSave}>Save</AddSchedulePageButton>
-          </ButtonsWrapper>
         </LowerRowWrapper>
+        <ButtonsWrapper>
+          <AddSchedulePageButton
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Back To View Schedule
+          </AddSchedulePageButton>
+          <AddSchedulePageButton onClick={onClickSave}>Save</AddSchedulePageButton>
+        </ButtonsWrapper>
       </OptionsContainer>
+      {alertModalState.isShowing && (
+        <ConfirmationModal onConfirm={() => navigate("/")} confirmationType="confirm only">
+          {alertModalState.message}
+        </ConfirmationModal>
+      )}
     </Container>
   );
 }
@@ -181,6 +189,7 @@ const OptionsContainer = styled.div`
 
 const FieldLabel = styled.h4`
   width: 6rem;
+
   @media (max-width: 720px) {
     width: 100%;
   }
@@ -263,12 +272,12 @@ const LowerRowWrapper = styled.div`
   width: 100%;
   height: 7rem;
   display: flex;
-  flex-direction: column;
+
   justify-content: space-between;
   padding-right: 1rem;
   padding-bottom: 1rem;
   > * {
-    margin: 0 0.5rem;
+    margin: 0.5rem 0.5rem;
   }
   @media (max-width: 720px) {
     flex-direction: column;
@@ -279,10 +288,10 @@ const LowerRowWrapper = styled.div`
 const ReapeatOnWrapper = styled.div`
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   @media (max-width: 720px) {
     flex-direction: column;
-    margin-bottom: 2rem;
   }
 `;
 const RadioInput = styled.input.attrs((props) => ({ type: "radio" }))`

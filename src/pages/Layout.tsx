@@ -21,7 +21,7 @@ const Container = styled.div`
 
 const Main = styled.div`
   width: 100%;
-  height: calc(100% - 3rem);
+  min-height: calc(100% - 3rem);
   padding: 0 2rem;
   background-color: ${theme.pageBackgroundColor};
   @media (max-width: 720px) {
