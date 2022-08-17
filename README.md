@@ -54,4 +54,4 @@ Connect to http://localhost:5173 on browser
 ## Features To Be Added/Improved:
 
 - Sign up feature
-- Make alerts to be more UI friendly
+- ~~Make alerts to be more UI friendly~~
