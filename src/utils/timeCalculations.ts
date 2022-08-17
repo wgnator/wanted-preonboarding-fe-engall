@@ -11,15 +11,7 @@ export const DAYS_SEQUENCE = {
   Sunday: 6,
 };
 
-export enum DAYS_TEXT {
-  Monday,
-  Tuesday,
-  Wednesday,
-  Thursday,
-  Friday,
-  Saturday,
-  Sunday,
-}
+export const DAYS_TEXT = Object.keys(DAYS_SEQUENCE);
 
 export const MINUTES_IN_HOUR = 60;
 export const MINUTES_IN_DAY = MINUTES_IN_HOUR * 24;

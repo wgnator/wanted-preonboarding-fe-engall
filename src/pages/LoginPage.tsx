@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Button from "../components/Button";
-import { useUsersDBModel } from "../models/useUsersDBModel";
+import { useUsersDB } from "../api-requests/useUsersDB";
 import { theme } from "../styles/theme";
 
 export default function LoginPage() {
   const [inputValues, setInputValues] = useState({ userID: null, password: null });
-  const { verifyUser } = useUsersDBModel();
+  const { verifyUser } = useUsersDB();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValues({ ...inputValues, [event.target?.name]: event.target?.value });
