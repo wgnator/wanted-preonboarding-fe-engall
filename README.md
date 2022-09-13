@@ -1,5 +1,6 @@
-# EngAll Tutor Schedule Management Project
+# Tutor Schedule Management Site
 
+Created by Woongi Han
 ## How to run:
 
 ### Run json-server
